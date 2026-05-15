@@ -1,0 +1,173 @@
+26 Develop a Student Management Lightning Application to store and manage student records. The 
+system should ensure data accuracy using validation rules while creating or updating records.The 
+system should validate the following before saving: 
+●  Marks should be between 0 and 100. 
+●  Roll number must be greater than 0 
+●  Ensure the email contains @ symbol. 
+●  The student's name cannot be blank. 
+
+
+Setup → Object Manager → Create → Custom Object
+| Property     | Value        |
+| ------------ | ------------ |
+| Label        | Student      |
+| Plural Label | Students     |
+| Record Name  | Student Name |
+
+
+| Field Label | Data Type | API Name       |
+| ----------- | --------- | -------------- |
+| Roll Number | Number    | Roll_Number__c |
+| Email       | Email     | Email__c       |
+| Marks       | Number    | Marks__c       |
+
+
+Inside Student Object:
+
+Validation Rules → New
+
+tep 3: Create Validation Rule for Marks
+
+Inside Student Object:
+
+Validation Rules → New
+
+Rule Name:
+
+Marks_Validation
+
+Formula:
+
+OR(
+    Marks__c < 0,
+    Marks__c > 100
+)
+
+Error Message:
+
+Marks should be between 0 and 100.
+
+Click:
+
+Save
+Step 4: Create Validation Rule for Roll Number
+
+Click:
+
+New
+
+Rule Name:
+
+Roll_Number_Validation
+
+Formula:
+
+Roll_Number__c <= 0
+
+Error Message:
+
+Roll number must be greater than 0.
+
+Click:
+
+Save
+Step 5: Create Validation Rule for Email
+
+Click:
+
+New
+
+Rule Name:
+
+Email_Validation
+
+Formula:
+
+NOT(
+    CONTAINS(
+        Email__c,
+        "@"
+    )
+)
+
+Error Message:
+
+Email must contain @ symbol.
+
+Click:
+
+Save
+Step 6: Create Validation Rule for Student Name
+
+Click:
+
+New
+
+Rule Name:
+
+Student_Name_Validation
+
+Formula:
+
+ISBLANK(Name)
+
+Error Message:
+
+Student name cannot be blank.
+
+Click:
+
+Save
+
+Step 7: Create Lightning Application
+
+Open:
+
+Setup → App Manager
+
+Click:
+
+New Lightning App
+
+
+| Property | Value                  |
+| -------- | ---------------------- |
+| App Name | Student Management App |
+
+Click:
+
+Next
+
+Continue clicking:
+
+Next → Next
+Step 8: Add Student Object to App
+
+Under Navigation Items:
+
+Move:
+
+Students
+
+to Selected Items.
+
+
+Add system admistrative at last step
+
+
+
+Click:
+
+Next → Save & Finish
+Step 9: Run the Application
+
+Click:
+
+App Launcher (9 dots)
+
+Search:
+
+Student Management App
+
+Open the app.
+done

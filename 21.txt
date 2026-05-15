@@ -1,0 +1,185 @@
+21
+
+21 Student Record Management System 
+Problem Statement: Menu-Driven Student Management System 
+Develop a menu-driven application in Salesforce using the Apex programming language to manage 
+student records stored in a custom object.
+
+add fields
+tep 1: Create Student Custom Object
+
+Open:
+
+Setup → Object Manager → Create → Custom Object
+
+Fill:
+
+Property	Value
+Label	Student
+Plural Label	Students
+Record Name	Student Name
+
+Click Save
+
+Step 2: Create Fields
+
+Inside Student Object → Fields & Relationships
+
+Create these fields:
+
+Field Label	Data Type	API Name
+Roll Number	Number	Roll_Number__c
+Course	Text	Course__c
+Marks	Number	Marks__c
+Step 3: Open Developer Console
+
+Click:
+
+Gear Icon → Developer Console
+Step 4: Create Apex Controller
+
+Inside Developer Console:
+
+File → New → Apex Class
+
+StudentManagementSystem.apex -> file name
+
+public class StudentManagementSystem {
+
+    // Object for form input
+    public Student__c student {get; set;}
+
+    // List for table display
+    public List<Student__c> studentList {get; set;}
+
+    // Constructor
+    public StudentManagementSystem() {
+
+        student = new Student__c();
+
+        loadStudents();
+    }
+
+    // Load student records
+    public void loadStudents() {
+
+        studentList = [
+            SELECT Id,
+                   Name,
+                   Roll_Number__c,
+                   Course__c,
+                   Marks__c
+            FROM Student__c
+        ];
+    }
+
+    // Save student
+    public PageReference saveStudent() {
+
+        insert student;
+
+        student = new Student__c();
+
+        loadStudents();
+
+        return null;
+    }
+
+    // Delete student
+    public PageReference deleteStudent() {
+
+        String studentId =
+            ApexPages.currentPage()
+                     .getParameters()
+                     .get('id');
+
+        Student__c s = [
+            SELECT Id
+            FROM Student__c
+            WHERE Id = :studentId
+            LIMIT 1
+        ];
+
+        delete s;
+
+        loadStudents();
+
+        return null;
+    }
+}
+
+
+visualforce page
+
+
+<apex:page controller="StudentManagementSystem">
+
+    <apex:form>
+
+        <apex:pageBlock title="Student Record Management System">
+
+            <!-- Input Section -->
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:inputText
+                    value="{!student.Name}"
+                    label="Student Name"/>
+
+                <apex:inputText
+                    value="{!student.Roll_Number__c}"
+                    label="Roll Number"/>
+
+                <apex:inputText
+                    value="{!student.Course__c}"
+                    label="Course"/>
+
+                <apex:inputText
+                    value="{!student.Marks__c}"
+                    label="Marks"/>
+
+                <apex:commandButton
+                    value="Add Student"
+                    action="{!saveStudent}"/>
+
+            </apex:pageBlockSection>
+
+            <!-- Student Table -->
+
+            <apex:pageBlockTable
+                value="{!studentList}"
+                var="s">
+
+                <apex:column value="{!s.Name}"
+                             headerValue="Name"/>
+
+                <apex:column value="{!s.Roll_Number__c}"
+                             headerValue="Roll No"/>
+
+                <apex:column value="{!s.Course__c}"
+                             headerValue="Course"/>
+
+                <apex:column value="{!s.Marks__c}"
+                             headerValue="Marks"/>
+
+                <apex:column headerValue="Action">
+
+                    <apex:commandLink
+                        value="Delete"
+                        action="{!deleteStudent}">
+
+                        <apex:param
+                            name="id"
+                            value="{!s.Id}"/>
+
+                    </apex:commandLink>
+
+                </apex:column>
+
+            </apex:pageBlockTable>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>

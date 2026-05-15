@@ -1,0 +1,30 @@
+static page
+
+SSH (Port 22): My IP
+• HTTP (Port 80): Anywhere
+
+ssh -i key.pem ubuntu@<public-ip>
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl status nginx
+Ctrl+c
+ cd /var/www/html
+sudo rm index.nginx-debian.html
+sudo nano index.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My AWS Website</title>
+</head>
+<body>
+    <h1>Welcome to My EC2 Website</h1>
+    <p>Static website hosted successfully using Nginx.</p>
+</body>
+</html>
+
+
+sudo systemctl restart nginx
+
+http://<public-ip> 
+(http://3.106.218.117/ for my instance) 

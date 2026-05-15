@@ -1,0 +1,153 @@
+
+visual force page 
+
+<apex:page controller="EmailController">
+
+    <apex:form >
+
+        <apex:pageBlock title="Email Notification System">
+
+            <!-- Messages -->
+
+            <apex:pageMessages />
+
+            <!-- Input Fields -->
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:inputText value="{!toEmail}"
+                    label="Recipient Email"/>
+
+                <apex:inputText value="{!subject}"
+                    label="Subject"/>
+
+                <apex:inputTextarea value="{!body}"
+                    label="Message Body"/>
+
+                <!-- Send Button -->
+
+                <apex:commandButton value="Send Email"
+                    action="{!sendEmail}"/>
+
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>
+
+
+
+
+
+classs page
+
+
+
+
+public class EmailController {
+
+    // Variables
+
+    public String toEmail {get; set;}
+    public String subject {get; set;}
+    public String body {get; set;}
+
+    // Send Email Method
+
+    public PageReference sendEmail() {
+
+        // Email Validation
+
+        if(String.isBlank(toEmail) ||
+           !Pattern.matches(
+               '^[A-Za-z0-9+_.-]+@(.+)$',
+               toEmail
+           )) {
+
+            ApexPages.addMessage(
+
+                new ApexPages.Message(
+                    ApexPages.Severity.ERROR,
+                    'Invalid Email Address'
+                )
+            );
+
+            return null;
+        }
+
+        try {
+
+            // Create Email
+
+            Messaging.SingleEmailMessage mail =
+                new Messaging.SingleEmailMessage();
+
+            mail.setToAddresses(
+                new String[] { toEmail }
+            );
+
+            mail.setSubject(subject);
+
+            mail.setPlainTextBody(body);
+
+            // Optional Attachment
+
+            Messaging.EmailFileAttachment attachment =
+                new Messaging.EmailFileAttachment();
+
+            attachment.setFileName(
+                'SampleFile.txt'
+            );
+
+            attachment.setBody(
+                Blob.valueOf(
+                    'This is sample attachment content.'
+                )
+            );
+
+            attachment.setContentType(
+                'text/plain'
+            );
+
+            // Attach File
+
+            mail.setFileAttachments(
+                new Messaging.EmailFileAttachment[] {
+                    attachment
+                }
+            );
+
+            // Send Email
+
+            Messaging.sendEmail(
+
+                new Messaging.SingleEmailMessage[] {
+                    mail
+                }
+            );
+
+            ApexPages.addMessage(
+
+                new ApexPages.Message(
+                    ApexPages.Severity.CONFIRM,
+                    'Email Sent Successfully'
+                )
+            );
+        }
+
+        catch(Exception e) {
+
+            ApexPages.addMessage(
+
+                new ApexPages.Message(
+                    ApexPages.Severity.ERROR,
+                    e.getMessage()
+                )
+            );
+        }
+
+        return null;
+    }
+}

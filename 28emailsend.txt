@@ -1,0 +1,104 @@
+open console 
+type ctrl+E
+paste code
+
+with attachment 
+
+Messaging.SingleEmailMessage mail =
+    new Messaging.SingleEmailMessage();
+
+// Receiver Email
+
+mail.setToAddresses(
+    new String[] {
+        'chaudharivivek858@gmail.com'
+    }
+);
+
+// Email Subject
+
+mail.setSubject(
+    'Salesforce Email With Attachment'
+);
+
+// Email Body
+
+mail.setPlainTextBody(
+    'Hello,\n\nPlease find the attachment below.'
+);
+
+// Create Attachment
+
+Messaging.EmailFileAttachment attachment =
+    new Messaging.EmailFileAttachment();
+
+attachment.setFileName(
+    'SampleFile.txt'
+);
+
+attachment.setBody(
+    Blob.valueOf(
+        'This is sample attachment content from Salesforce Apex.'
+    )
+);
+
+attachment.setContentType(
+    'text/plain'
+);
+
+// Attach File
+
+mail.setFileAttachments(
+    new Messaging.EmailFileAttachment[] {
+        attachment
+    }
+);
+
+// Send Email
+
+Messaging.sendEmail(
+    new Messaging.SingleEmailMessage[] { mail }
+);
+
+System.debug(
+    'Email With Attachment Sent Successfully'
+);
+
+
+
+without attachment 
+
+Messaging.SingleEmailMessage mail =
+    new Messaging.SingleEmailMessage();
+
+mail.setToAddresses(
+    new String[] {
+        'chaudharivivek858@gmail.com'
+    }
+);
+
+mail.setSubject(
+    'Salesforce Test Email'
+);
+
+mail.setPlainTextBody(
+    'Hello Vivek,\n\nThis email is sent from Salesforce Apex.'
+);
+
+mail.setSaveAsActivity(false);
+
+Messaging.SendEmailResult[] result =
+    Messaging.sendEmail(
+        new Messaging.SingleEmailMessage[] { mail }
+    );
+
+if(result[0].isSuccess()) {
+
+    System.debug('Email Sent Successfully');
+}
+else {
+
+    System.debug(
+        result[0].getErrors()[0].getMessage()
+    );
+}

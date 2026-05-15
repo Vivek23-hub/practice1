@@ -1,0 +1,64 @@
+file transfer
+
+ssh->my ip
+all ipv4 ->anywhere
+
+key must same
+
+ SSH (Port 22): My IP (for external access via my desktop)
+• SSH (Port 22): launch-wizard-2 (self-referencing Security Group)
+• All ICMP (Ipv4): launch-wizard-2 (self-referencing Security Group
+
+
+Attached the same security group to both.
+Select existing security group
+
+
+Connect to EC2-1:
+
+ssh -i awskey.pem ubuntu@<Public-IP-EC2-1>
+
+Get Private IP of EC2-2
+Pinged Node B using private IP:
+
+ping <private-ip-ec2-2>
+
+ctrl-c
+
+ Create File on EC2-1
+echo "AWS File Transfer Test" > assignment2.txt
+
+
+Open NEW PowerShell window on Windows.
+
+scp -i awskey.pem awskey.pem ubuntu@<Public-IP-EC2-1>:/home/ubuntu
+
+Back in EC2-1 terminal:
+
+chmod 400 key.pem
+
+Step 11: Test SSH from EC2-1 to EC2-2
+
+ssh -i key.pem ubuntu@<private-ip-ec2-2>
+
+if error then change inbound in security change ssh all ipv4 of ec2-1
+
+exit
+
+
+Step 12: Transfer File Using SCP
+scp -i awskey.pem assignment2.txt ubuntu@private-ip-ec2-2:/home/ubuntu
+
+Step 13: Login to EC2-2
+ssh -i awskey.pem ubuntu@<Public-IP-EC2-2>
+
+Step 14: Verify File
+ls
+
+Expected:
+
+assignment2.txt
+
+Check content:
+
+cat assignment2.txt

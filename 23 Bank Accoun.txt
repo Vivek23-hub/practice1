@@ -1,0 +1,177 @@
+23 Create a menu-driven Bank Account System to manage customer accounts. 
+
+Account Type
+
+Balance
+
+Account Number
+
+
+| Field Label    | Data Type | API Name          |
+| -------------- | --------- | ----------------- |
+| Account Number | Number    | Account_Number__c |
+| Account Type   | Text      | Account_Type__c   |
+| Balance        | Number    | Balance__c        |
+
+
+
+Step 4: Create Apex Controller
+
+Inside Developer Console:
+
+File → New → Apex Class
+
+Class Name:
+
+BankAccountManagementSystem
+
+
+code
+
+public class BankAccountManagementSystem {
+
+    // Object for form input
+    public Bank_Account__c account {get; set;}
+
+    // List to display accounts
+    public List<Bank_Account__c> accountList {get; set;}
+
+    // Constructor
+    public BankAccountManagementSystem() {
+
+        account = new Bank_Account__c();
+
+        loadAccounts();
+    }
+
+    // Load account records
+    public void loadAccounts() {
+
+        accountList = [
+            SELECT Id,
+                   Name,
+                   Account_Number__c,
+                   Account_Type__c,
+                   Balance__c
+            FROM Bank_Account__c
+        ];
+    }
+
+    // Save account
+    public PageReference saveAccount() {
+
+        insert account;
+
+        account = new Bank_Account__c();
+
+        loadAccounts();
+
+        return null;
+    }
+
+    // Delete account
+    public PageReference deleteAccount() {
+
+        String accId =
+            ApexPages.currentPage()
+                     .getParameters()
+                     .get('id');
+
+        Bank_Account__c acc = [
+            SELECT Id
+            FROM Bank_Account__c
+            WHERE Id = :accId
+            LIMIT 1
+        ];
+
+        delete acc;
+
+        loadAccounts();
+
+        return null;
+    }
+}
+
+Step 5: Create Visualforce Page
+
+Inside Developer Console:
+
+File → New → Visualforce Page
+
+Page Name:
+
+BankAccountManagementPage
+
+code
+
+<apex:page controller="BankAccountManagementSystem">
+
+    <apex:form>
+
+        <apex:pageBlock title="Bank Account Management System">
+
+            <!-- Input Section -->
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:inputText
+                    value="{!account.Name}"
+                    label="Customer Name"/>
+
+                <apex:inputText
+                    value="{!account.Account_Number__c}"
+                    label="Account Number"/>
+
+                <apex:inputText
+                    value="{!account.Account_Type__c}"
+                    label="Account Type"/>
+
+                <apex:inputText
+                    value="{!account.Balance__c}"
+                    label="Balance"/>
+
+                <apex:commandButton
+                    value="Add Account"
+                    action="{!saveAccount}"/>
+
+            </apex:pageBlockSection>
+
+            <!-- Account Table -->
+
+            <apex:pageBlockTable
+                value="{!accountList}"
+                var="a">
+
+                <apex:column value="{!a.Name}"
+                             headerValue="Customer Name"/>
+
+                <apex:column value="{!a.Account_Number__c}"
+                             headerValue="Account Number"/>
+
+                <apex:column value="{!a.Account_Type__c}"
+                             headerValue="Account Type"/>
+
+                <apex:column value="{!a.Balance__c}"
+                             headerValue="Balance"/>
+
+                <apex:column headerValue="Action">
+
+                    <apex:commandLink
+                        value="Delete"
+                        action="{!deleteAccount}">
+
+                        <apex:param
+                            name="id"
+                            value="{!a.Id}"/>
+
+                    </apex:commandLink>
+
+                </apex:column>
+
+            </apex:pageBlockTable>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>

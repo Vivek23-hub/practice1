@@ -1,0 +1,210 @@
+full stack
+
+ssh -i web.pem ubuntu@Public IPv4
+
+sudo apt update
+
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+
+sudo apt install -y nodejs
+
+node -v
+npm -v
+
+sudo apt install git -y
+
+git clone https://github.com/Pratham-ghadge/E-Commerce.git
+
+cd ~/E-Commerce/backend
+npm install
+nano .env
+Change this:
+
+FRONTEND_URL=http://localhost:5173
+
+
+To this:
+
+FRONTEND_URL=http://YOUR_PUBLIC_IP
+
+for Student-managemen write http//ip not api
+
+node index.js
+
+if error inboud custom port 5000
+
+
+sudo npm install -g pm2
+
+pm2 start index.js --name ecommerce-backend
+ pm2 list
+ pm2 save
+pm2 startup
+
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
+
+pm2 logs
+
+sudo apt install nginx -y
+
+sudo nano /etc/nginx/sites-available/default
+
+write this code in it 
+
+server {
+    listen 80;
+
+    server_name _;
+
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /api {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+cd ~/E-Commerce/frontend
+nano src/context/AuthContext.jsx
+
+import { createContext, useContext, useState, useEffect } from "react";
+import API from "../api/axios";
+
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser));
+
+      // Verify token
+      API.get("/auth/me")
+        .then((res) => {
+          const userData = res.data.user;
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+        })
+        .catch(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+        })
+        .finally(() => setLoading(false));
+
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const login = async (email, password) => {
+
+    const res = await API.post("/auth/login", {
+      email,
+      password,
+    });
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    setUser(res.data.user);
+
+    return res.data;
+  };
+
+  const register = async (name, email, password) => {
+
+    const res = await API.post("/auth/register", {
+      name,
+      email,
+      password,
+    });
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    setUser(res.data.user);
+
+    return res.data;
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+nano .env
+VITE_API_URL=http://YOUR_VM_pub IP/api
+
+
+npm install
+npm run build
+
+sudo rm /var/www/html/index.nginx-debian.html
+
+sudo cp -r dist/* /var/www/html/
+
+sudo systemctl restart nginx
+
+
+if not working 
+Change only this part:
+
+app.listen(port, () => {
+
+to:
+
+app.listen(port, "0.0.0.0", () => {
+
+Final correct version:
+
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`Server running at port ${port}`);
+  });
+};
+
+Then restart backend:
+
+pm2 restart ecommerce-backend
+
+This allows EC2/Nginx/public IP access to your backend.

@@ -1,0 +1,226 @@
+24  Design a Product Inventory Management System to maintain product records. 
+
+| Field Label | Data Type | API Name      |
+| ----------- | --------- | ------------- |
+| Product ID  | Number    | Product_ID__c |
+| Category    | Text      | Category__c   |
+| Price       | Number    | Price__c      |
+| Quantity    | Number    | Quantity__c   |
+
+
+public class ProductInventoryManagementSystem {
+
+    // Form object
+    public Product_Inventory__c product {get; set;}
+
+    // Product list
+    public List<Product_Inventory__c> productList {get; set;}
+
+    // Edit mode
+    public Boolean isEdit {get; set;}
+
+    // Constructor
+    public ProductInventoryManagementSystem() {
+
+        product = new Product_Inventory__c();
+
+        isEdit = false;
+
+        loadProducts();
+    }
+
+    // Load products
+    public void loadProducts() {
+
+        productList = [
+            SELECT Id,
+                   Name,
+                   Product_ID__c,
+                   Category__c,
+                   Price__c,
+                   Quantity__c
+            FROM Product_Inventory__c
+        ];
+    }
+
+    // Save product
+    public PageReference saveProduct() {
+
+        insert product;
+
+        product = new Product_Inventory__c();
+
+        loadProducts();
+
+        return null;
+    }
+
+    // Edit product
+    public PageReference editProduct() {
+
+        String prodId =
+            ApexPages.currentPage()
+                     .getParameters()
+                     .get('id');
+
+        product = [
+            SELECT Id,
+                   Name,
+                   Product_ID__c,
+                   Category__c,
+                   Price__c,
+                   Quantity__c
+            FROM Product_Inventory__c
+            WHERE Id = :prodId
+            LIMIT 1
+        ];
+
+        isEdit = true;
+
+        return null;
+    }
+
+    // Update product
+    public PageReference updateProduct() {
+
+        update product;
+
+        product = new Product_Inventory__c();
+
+        isEdit = false;
+
+        loadProducts();
+
+        return null;
+    }
+
+    // Delete product
+    public PageReference deleteProduct() {
+
+        String prodId =
+            ApexPages.currentPage()
+                     .getParameters()
+                     .get('id');
+
+        Product_Inventory__c p = [
+            SELECT Id
+            FROM Product_Inventory__c
+            WHERE Id = :prodId
+            LIMIT 1
+        ];
+
+        delete p;
+
+        loadProducts();
+
+        return null;
+    }
+}
+
+
+<apex:page controller="ProductInventoryManagementSystem">
+
+    <apex:form>
+
+        <apex:pageBlock title="Product Inventory Management System">
+
+            <!-- Input Form -->
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:inputText
+                    value="{!product.Name}"
+                    label="Product Name"/>
+
+                <apex:inputText
+                    value="{!product.Product_ID__c}"
+                    label="Product ID"/>
+
+                <apex:inputText
+                    value="{!product.Category__c}"
+                    label="Category"/>
+
+                <apex:inputText
+                    value="{!product.Price__c}"
+                    label="Price"/>
+
+                <apex:inputText
+                    value="{!product.Quantity__c}"
+                    label="Quantity"/>
+
+                <!-- Add Button -->
+
+                <apex:commandButton
+                    value="Add Product"
+                    action="{!saveProduct}"
+                    rendered="{!!isEdit}"/>
+
+                <!-- Update Button -->
+
+                <apex:commandButton
+                    value="Update Product"
+                    action="{!updateProduct}"
+                    rendered="{!isEdit}"/>
+
+            </apex:pageBlockSection>
+
+            <!-- Product Table -->
+
+            <apex:pageBlockTable
+                value="{!productList}"
+                var="p">
+
+                <apex:column value="{!p.Name}"
+                             headerValue="Product Name"/>
+
+                <apex:column value="{!p.Product_ID__c}"
+                             headerValue="Product ID"/>
+
+                <apex:column value="{!p.Category__c}"
+                             headerValue="Category"/>
+
+                <apex:column value="{!p.Price__c}"
+                             headerValue="Price"/>
+
+                <apex:column value="{!p.Quantity__c}"
+                             headerValue="Quantity"/>
+
+                <!-- Actions -->
+
+                <apex:column headerValue="Actions">
+
+                    <!-- Edit -->
+
+                    <apex:commandLink
+                        value="Edit"
+                        action="{!editProduct}">
+
+                        <apex:param
+                            name="id"
+                            value="{!p.Id}"/>
+
+                    </apex:commandLink>
+
+                    &nbsp; | &nbsp;
+
+                    <!-- Delete -->
+
+                    <apex:commandLink
+                        value="Delete"
+                        action="{!deleteProduct}">
+
+                        <apex:param
+                            name="id"
+                            value="{!p.Id}"/>
+
+                    </apex:commandLink>
+
+                </apex:column>
+
+            </apex:pageBlockTable>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>
