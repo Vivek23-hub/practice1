@@ -174,145 +174,485 @@
 //     return 0;
 // }
 
+// #include <iostream>
+// #include <vector>
+// #include <queue>
+// #include <algorithm>
+// #include <unordered_set>
+// #include <string>
+// using namespace std;
+
+// struct Node {
+//     vector<vector<int>> state;
+//     int x, y;
+//     int g, h;
+//     Node* parent;
+// };
+
+// // 🔹 Custom Goal state
+// vector<vector<int>> goal = {
+//     {2,0,1},
+//     {3,5,4},
+//     {6,8,7}
+// };
+
+// // 🔹 Correct Manhattan Heuristic for custom goal
+// int heuristic(const vector<vector<int>> &s) {
+//     int dist = 0;
+
+//     for(int i=0;i<3;i++){
+//         for(int j=0;j<3;j++){
+//             if(s[i][j] != 0){
+//                 for(int x=0;x<3;x++){
+//                     for(int y=0;y<3;y++){
+//                         if(goal[x][y] == s[i][j]){
+//                             dist += abs(i - x) + abs(j - y);
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     return dist;
+// }
+
+// // Convert state → string
+// string getKey(const vector<vector<int>> &s){
+//     string k="";
+//     for(auto &r:s)
+//         for(int v:r)
+//             k += to_string(v);
+//     return k;
+// }
+
+// // Comparator (min heap)
+// struct Compare {
+//     bool operator()(Node* a, Node* b){
+//         return (a->g + a->h) > (b->g + b->h);
+//     }
+// };
+
+// // 🔹 Print with step + iteration
+// void printState(const vector<vector<int>> &s, int step, int iter){
+//     cout << "Step " << step << " | Iteration " << iter << ":\n";
+//     for(auto &row:s){
+//         for(int v:row){
+//             if(v==0) cout<<"_ ";
+//             else cout<<v<<" ";
+//         }
+//         cout<<endl;
+//     }
+//     cout<<"------\n";
+// }
+
+// // A* Algorithm
+// void AStar(vector<vector<int>> start, int sx, int sy){
+
+//     priority_queue<Node*, vector<Node*>, Compare> pq;
+//     unordered_set<string> visited;
+
+//     Node* root = new Node{start, sx, sy, 0, heuristic(start), NULL};
+//     pq.push(root);
+
+//     int iterations = 0;
+
+//     int dx[] = {1,-1,0,0};
+//     int dy[] = {0,0,1,-1};
+
+//     while(!pq.empty()){
+//         Node* cur = pq.top();
+//         pq.pop();
+
+//         string key = getKey(cur->state);
+//         if(visited.count(key)) continue;
+//         visited.insert(key);
+
+//         iterations++;
+
+//         // 🔹 Optional: show search process
+//         cout << "Iteration " << iterations << ":\n";
+//         printState(cur->state, -1, iterations);
+
+//         // Goal check
+//         if(cur->h == 0){
+//             vector<Node*> path;
+
+//             while(cur){
+//                 path.push_back(cur);
+//                 cur = cur->parent;
+//             }
+
+//             reverse(path.begin(), path.end());
+
+//             cout << "\n===== FINAL SOLUTION PATH =====\n\n";
+
+//             for(int i=0;i<path.size();i++){
+//                 printState(path[i]->state, i, iterations);
+//             }
+
+//             cout << "\nSolution Found!\n";
+//             cout << "Total Steps (moves): " << path.size()-1 << endl;
+//             cout << "Total Iterations: " << iterations << endl;
+
+//             return;
+//         }
+
+//         // Generate children
+//         for(int i=0;i<4;i++){
+//             int nx = cur->x + dx[i];
+//             int ny = cur->y + dy[i];
+
+//             if(nx>=0 && ny>=0 && nx<3 && ny<3){
+//                 vector<vector<int>> newState = cur->state;
+
+//                 swap(newState[cur->x][cur->y],
+//                      newState[nx][ny]);
+
+//                 Node* child = new Node{
+//                     newState,
+//                     nx, ny,
+//                     cur->g + 1,
+//                     heuristic(newState),
+//                     cur
+//                 };
+
+//                 pq.push(child);
+//             }
+//         }
+//     }
+
+//     cout<<"No Solution Found\n";
+// }
+
+// int main(){
+
+//     // 🔹 Start state
+//     vector<vector<int>> start = {
+//         {2,8,3},
+//         {1,6,4},
+//         {7,0,5}
+//     };
+
+//     int sx, sy;
+
+//     for(int i=0;i<3;i++){
+//         for(int j=0;j<3;j++){
+//             if(start[i][j] == 0){
+//                 sx = i;
+//                 sy = j;
+//             }
+//         }
+//     }
+
+//     AStar(start, sx, sy);
+
+//     return 0;
+// }
 #include <iostream>
 #include <vector>
 #include <queue>
 #include <algorithm>
 #include <unordered_set>
 #include <string>
+
 using namespace std;
 
 struct Node {
+
     vector<vector<int>> state;
+
     int x, y;
+
     int g, h;
+
     Node* parent;
 };
 
-// 🔹 Custom Goal state
+// ---------------- GOAL STATE ----------------
+
 vector<vector<int>> goal = {
+
     {2,0,1},
     {3,5,4},
     {6,8,7}
 };
 
-// 🔹 Correct Manhattan Heuristic for custom goal
+// ---------------- HEURISTIC ----------------
+
 int heuristic(const vector<vector<int>> &s) {
+
     int dist = 0;
 
-    for(int i=0;i<3;i++){
-        for(int j=0;j<3;j++){
-            if(s[i][j] != 0){
-                for(int x=0;x<3;x++){
-                    for(int y=0;y<3;y++){
-                        if(goal[x][y] == s[i][j]){
-                            dist += abs(i - x) + abs(j - y);
+    for(int i=0;i<3;i++) {
+
+        for(int j=0;j<3;j++) {
+
+            if(s[i][j] != 0) {
+
+                for(int x=0;x<3;x++) {
+
+                    for(int y=0;y<3;y++) {
+
+                        if(goal[x][y] == s[i][j]) {
+
+                            dist += abs(i - x)
+                                  + abs(j - y);
                         }
                     }
                 }
             }
         }
     }
+
     return dist;
 }
 
-// Convert state → string
+// ---------------- STATE KEY ----------------
+
 string getKey(const vector<vector<int>> &s){
-    string k="";
+
+    string k = "";
+
     for(auto &r:s)
+
         for(int v:r)
+
             k += to_string(v);
+
     return k;
 }
 
-// Comparator (min heap)
+// ---------------- PRIORITY QUEUE ----------------
+
 struct Compare {
+
     bool operator()(Node* a, Node* b){
-        return (a->g + a->h) > (b->g + b->h);
+
+        return (a->g + a->h)
+             > (b->g + b->h);
     }
 };
 
-// 🔹 Print with step + iteration
-void printState(const vector<vector<int>> &s, int step, int iter){
-    cout << "Step " << step << " | Iteration " << iter << ":\n";
+// ---------------- PRINT BOARD ----------------
+
+void printState(const vector<vector<int>> &s){
+
     for(auto &row:s){
+
         for(int v:row){
-            if(v==0) cout<<"_ ";
-            else cout<<v<<" ";
+
+            if(v == 0)
+
+                cout << "_ ";
+
+            else
+
+                cout << v << " ";
         }
-        cout<<endl;
+
+        cout << endl;
     }
-    cout<<"------\n";
 }
 
-// A* Algorithm
-void AStar(vector<vector<int>> start, int sx, int sy){
+// ---------------- PRINT DETAILS ----------------
 
-    priority_queue<Node*, vector<Node*>, Compare> pq;
+void printDetails(Node* node){
+
+    printState(node->state);
+
+    cout << "\ng(n) = "
+         << node->g
+         << endl;
+
+    cout << "h(n) = "
+         << node->h
+         << endl;
+
+    cout << "f(n) = "
+         << node->g + node->h
+         << endl;
+}
+
+// ---------------- PRINT MOVE ----------------
+
+void printMove(string move,
+               vector<vector<int>> state,
+               int g){
+
+    int h = heuristic(state);
+
+    int f = g + h;
+
+    cout << "\n===== "
+         << move
+         << " MOVE =====\n";
+
+    printState(state);
+
+    cout << "\ng(n) = "
+         << g
+         << endl;
+
+    cout << "h(n) = "
+         << h
+         << endl;
+
+    cout << "f(n) = "
+         << f
+         << endl;
+}
+
+// ---------------- A* ALGORITHM ----------------
+
+void AStar(vector<vector<int>> start,
+           int sx,
+           int sy){
+
+    priority_queue<Node*,
+                   vector<Node*>,
+                   Compare> pq;
+
     unordered_set<string> visited;
 
-    Node* root = new Node{start, sx, sy, 0, heuristic(start), NULL};
+    Node* root = new Node{
+
+        start,
+        sx,
+        sy,
+        0,
+        heuristic(start),
+        NULL
+    };
+
     pq.push(root);
 
     int iterations = 0;
 
     int dx[] = {1,-1,0,0};
+
     int dy[] = {0,0,1,-1};
 
-    while(!pq.empty()){
+    while(!pq.empty()) {
+
         Node* cur = pq.top();
+
         pq.pop();
 
-        string key = getKey(cur->state);
-        if(visited.count(key)) continue;
+        string key =
+            getKey(cur->state);
+
+        if(visited.count(key))
+
+            continue;
+
         visited.insert(key);
 
         iterations++;
 
-        // 🔹 Optional: show search process
-        cout << "Iteration " << iterations << ":\n";
-        printState(cur->state, -1, iterations);
+        // ---------------- CURRENT STATE ----------------
 
-        // Goal check
+        cout << "\n================================\n";
+
+        cout << "ITERATION "
+             << iterations
+             << endl;
+
+        cout << "================================\n";
+
+        cout << "\n===== CURRENT STATE =====\n";
+
+        printDetails(cur);
+
+        // ---------------- GOAL CHECK ----------------
+
         if(cur->h == 0){
+
+            cout << "\n===== GOAL STATE REACHED =====\n";
+
             vector<Node*> path;
 
             while(cur){
+
                 path.push_back(cur);
+
                 cur = cur->parent;
             }
 
-            reverse(path.begin(), path.end());
-
-            cout << "\n===== FINAL SOLUTION PATH =====\n\n";
+            reverse(path.begin(),
+                    path.end());
 
             for(int i=0;i<path.size();i++){
-                printState(path[i]->state, i, iterations);
+
+                cout << "\nSTEP "
+                     << i
+                     << endl;
+
+                printDetails(path[i]);
             }
 
             cout << "\nSolution Found!\n";
-            cout << "Total Steps (moves): " << path.size()-1 << endl;
-            cout << "Total Iterations: " << iterations << endl;
+
+            cout << "Total Steps = "
+                 << path.size() - 1
+                 << endl;
+
+            cout << "Total Iterations = "
+                 << iterations
+                 << endl;
 
             return;
         }
 
-        // Generate children
-        for(int i=0;i<4;i++){
+        // ---------------- CHILD STATES ----------------
+
+        for(int i=0;i<4;i++) {
+
             int nx = cur->x + dx[i];
+
             int ny = cur->y + dy[i];
 
-            if(nx>=0 && ny>=0 && nx<3 && ny<3){
-                vector<vector<int>> newState = cur->state;
+            if(nx>=0 && ny>=0 &&
+               nx<3 && ny<3){
+
+                vector<vector<int>> newState =
+                    cur->state;
 
                 swap(newState[cur->x][cur->y],
                      newState[nx][ny]);
 
+                string move;
+
+                if(dx[i] == 1)
+
+                    move = "DOWN";
+
+                else if(dx[i] == -1)
+
+                    move = "UP";
+
+                else if(dy[i] == 1)
+
+                    move = "RIGHT";
+
+                else
+
+                    move = "LEFT";
+
+                printMove(move,
+                          newState,
+                          cur->g + 1);
+
                 Node* child = new Node{
+
                     newState,
-                    nx, ny,
+
+                    nx,
+                    ny,
+
                     cur->g + 1,
+
                     heuristic(newState),
+
                     cur
                 };
 
@@ -321,13 +661,15 @@ void AStar(vector<vector<int>> start, int sx, int sy){
         }
     }
 
-    cout<<"No Solution Found\n";
+    cout << "No Solution Found\n";
 }
+
+// ---------------- MAIN ----------------
 
 int main(){
 
-    // 🔹 Start state
     vector<vector<int>> start = {
+
         {2,8,3},
         {1,6,4},
         {7,0,5}
@@ -335,10 +677,14 @@ int main(){
 
     int sx, sy;
 
-    for(int i=0;i<3;i++){
-        for(int j=0;j<3;j++){
+    for(int i=0;i<3;i++) {
+
+        for(int j=0;j<3;j++) {
+
             if(start[i][j] == 0){
+
                 sx = i;
+
                 sy = j;
             }
         }
