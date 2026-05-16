@@ -1,0 +1,200 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <thread>
+#include <chrono>
+
+using namespace std;
+
+// ---------------- RULE STRUCTURE ----------------
+
+struct Rule {
+
+    vector<string> conditions;
+
+    string conclusion;
+
+    string action;
+};
+
+// ---------------- MEDICAL EXPERT SYSTEM ----------------
+
+class MedicalExpertSystem {
+
+private:
+
+    vector<Rule> rules;
+
+    bool high_fever;
+    bool cough;
+    bool body_pain;
+    bool cold;
+    bool tired;
+
+public:
+
+    // Constructor
+    MedicalExpertSystem() {
+
+        rules.push_back({
+            {"high_fever", "cough", "tired"},
+            "FLU",
+            "Take rest, drink fluids, consult doctor."
+        });
+
+        rules.push_back({
+            {"high_fever", "body_pain"},
+            "INFECTION",
+            "Visit doctor and take medicines."
+        });
+
+        rules.push_back({
+            {"cough", "cold"},
+            "COMMON COLD",
+            "Take steam and drink warm water."
+        });
+
+        rules.push_back({
+            {"tired", "body_pain"},
+            "FATIGUE",
+            "Take rest and proper diet."
+        });
+
+        rules.push_back({
+            {"high_fever"},
+            "MILD FEVER",
+            "Take paracetamol and rest."
+        });
+    }
+
+    // ---------------- ASK FUNCTION ----------------
+
+    bool ask(string question) {
+
+        char ans;
+
+        cout << question << " (y/n): ";
+
+        cin >> ans;
+
+        return (ans == 'y' || ans == 'Y');
+    }
+
+    // ---------------- GATHER FACTS ----------------
+
+    string gatherFacts() {
+
+        cout << "=====================================================\n";
+        cout << "        EXPERT SYSTEM : MEDICAL DIAGNOSIS\n";
+        cout << "=====================================================\n";
+
+        string name;
+
+        cout << "Patient Name: ";
+
+        cin >> name;
+
+        // Questions
+        high_fever = ask("1. Do you have high fever?");
+        cough = ask("2. Do you have cough?");
+        body_pain = ask("3. Do you have body pain?");
+        cold = ask("4. Do you have cold/runny nose?");
+        tired = ask("5. Do you feel tired or weak?");
+
+        return name;
+    }
+
+    // ---------------- CHECK CONDITION ----------------
+
+    bool checkCondition(string cond) {
+
+        if (cond == "high_fever")
+            return high_fever;
+
+        if (cond == "cough")
+            return cough;
+
+        if (cond == "body_pain")
+            return body_pain;
+
+        if (cond == "cold")
+            return cold;
+
+        if (cond == "tired")
+            return tired;
+
+        return false;
+    }
+
+    // ---------------- INFERENCE ENGINE ----------------
+
+    Rule inferenceEngine() {
+
+        cout << "\n[Inference Engine]: Checking symptoms...\n";
+
+        this_thread::sleep_for(chrono::seconds(2));
+
+        for (Rule rule : rules) {
+
+            bool match = true;
+
+            for (string cond : rule.conditions) {
+
+                if (!checkCondition(cond)) {
+
+                    match = false;
+
+                    break;
+                }
+            }
+
+            if (match)
+                return rule;
+        }
+
+        // Default result
+        return {
+            {},
+            "NO MAJOR ISSUE",
+            "You are healthy. Maintain good lifestyle."
+        };
+    }
+
+    // ---------------- RUN SYSTEM ----------------
+
+    void run() {
+
+        string name = gatherFacts();
+
+        Rule result = inferenceEngine();
+
+        cout << "\n=====================================================\n";
+
+        cout << " FINAL MEDICAL RESULT : "
+             << name
+             << endl;
+
+        cout << "=====================================================\n";
+
+        cout << "CONCLUSION : "
+             << result.conclusion
+             << endl;
+
+        cout << "ACTION     : "
+             << result.action
+             << endl;
+
+        cout << "=====================================================\n";
+    }
+};
+
+// ---------------- MAIN ----------------
+
+int main() {
+
+    MedicalExpertSystem system;
+
+    system.run();
+
+    return 0;
+}
